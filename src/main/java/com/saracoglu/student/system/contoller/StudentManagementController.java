@@ -2,6 +2,7 @@ package com.saracoglu.student.system.contoller;
 
 import com.saracoglu.student.system.dto.StudentInfo;
 import com.saracoglu.student.system.service.StudentManagementService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class StudentManagementController {
 
     // Yeni bir öğrenci ekleme
     @PostMapping
-    public StudentInfo addStudent(@RequestBody StudentInfo studentInfo) {
+    public StudentInfo addStudent(@Valid @RequestBody StudentInfo studentInfo) {
         return studentManagementService.addStudent(studentInfo);
     }
 

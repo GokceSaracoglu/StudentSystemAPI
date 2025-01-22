@@ -2,6 +2,7 @@ package com.saracoglu.student.system.contoller;
 
 import com.saracoglu.student.system.dto.DepartmentInfo;
 import com.saracoglu.student.system.service.DepartmentCatalogService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class DepartmentCatalogController {
 
     // Yeni bir departman ekleme
     @PostMapping
-    public DepartmentInfo addDepartment(@RequestBody DepartmentInfo departmentInfo) {
+    public DepartmentInfo addDepartment(@Valid @RequestBody DepartmentInfo departmentInfo) {
         return departmentCatalogService.addDepartment(departmentInfo);
     }
 

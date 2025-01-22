@@ -2,6 +2,7 @@ package com.saracoglu.student.system.service;
 
 import com.saracoglu.student.system.dto.StudentInfo;
 import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
+import com.saracoglu.student.system.exception.StudentNotFoundException;
 import com.saracoglu.student.system.repository.DepartmentCatalogRepository;
 import com.saracoglu.student.system.repository.StudentManagementRepository;
 import com.saracoglu.student.system.service.mapper.StudentSystemMapper;
@@ -45,7 +46,7 @@ public class StudentManagementService {
 
     public StudentInfo findById(Long id) {
         StudentEnrollmentEntity studentEntity = studentManagementRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+                .orElseThrow(() -> new StudentNotFoundException(String.format("Öğrenci (%s) bulunamadı.", id)));
         return studentSystemMapper.convertToDto(studentEntity);
     }
     // Get All Students
@@ -59,7 +60,7 @@ public class StudentManagementService {
     // Delete Student by ID
     public void deleteStudent(Long studentId) {
         if (!studentManagementRepository.existsById(studentId)) {
-            throw new RuntimeException("Student with ID " + studentId + " not found.");
+            throw new StudentNotFoundException(String.format("Öğrenci (%s) bulunamadı.", studentId));
         }
         studentManagementRepository.deleteById(studentId);
     }

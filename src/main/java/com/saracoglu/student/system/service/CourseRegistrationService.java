@@ -4,6 +4,8 @@ import com.saracoglu.student.system.dto.CourseRegistrationInfo;
 import com.saracoglu.student.system.entity.CourseCatalogEntity;
 import com.saracoglu.student.system.entity.CourseRegistrationEntity;
 import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
+import com.saracoglu.student.system.exception.CourseNotFoundException;
+import com.saracoglu.student.system.exception.StudentNotFoundException;
 import com.saracoglu.student.system.repository.CourseCatalogRepository;
 import com.saracoglu.student.system.repository.CourseRegistrationRepository;
 import com.saracoglu.student.system.repository.StudentManagementRepository;
@@ -37,10 +39,10 @@ public class CourseRegistrationService {
 
         // Öğrenciyi ve dersi veritabanından bul
         StudentEnrollmentEntity student = studentManagementRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new StudentNotFoundException(String.format("Öğrenci (%s) bulunamadı.", studentId)));
 
         CourseCatalogEntity course = courseCatalogRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new CourseNotFoundException(String.format("Ders (%s) bulunamadı.", courseId)));
 
         // CourseRegistrationEntity nesnesini oluştur
         CourseRegistrationEntity registrationEntity = new CourseRegistrationEntity();

@@ -1,11 +1,14 @@
 package com.saracoglu.student.system.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 
 
 public class DepartmentInfo {
     private Long id;
+    @NotEmpty(message = "Departmant name cannot to be empty")
+    private String name;
 
     public DepartmentInfo() {
     }
@@ -25,8 +28,6 @@ public class DepartmentInfo {
     public void setName(String name) {
         this.name = name;
     }
-
-    private String name;
 
     public DepartmentInfo(String name) {
         this.name = name;

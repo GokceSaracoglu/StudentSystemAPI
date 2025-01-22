@@ -2,6 +2,7 @@ package com.saracoglu.student.system.service;
 
 import com.saracoglu.student.system.dto.DepartmentInfo;
 import com.saracoglu.student.system.entity.DepartmentCatalogEntity;
+import com.saracoglu.student.system.exception.DepartmentNotFoundException;
 import com.saracoglu.student.system.repository.DepartmentCatalogRepository;
 import com.saracoglu.student.system.service.mapper.StudentSystemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class DepartmentCatalogService {
     // ID'ye göre departman getirme
     public DepartmentInfo getDepartmentById(Long id) {
         DepartmentCatalogEntity departmentEntity = departmentCatalogRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() -> new DepartmentNotFoundException("Department not found"));
         return studentSystemMapper.convertToDto(departmentEntity);
     }
 
@@ -44,7 +45,7 @@ public class DepartmentCatalogService {
     // ID'ye göre departman silme
     public void deleteDepartmentById(Long id) {
         if (!departmentCatalogRepository.existsById(id)) {
-            throw new RuntimeException("Department not found");
+            throw new DepartmentNotFoundException("Department not found");
         }
         departmentCatalogRepository.deleteById(id);
     }

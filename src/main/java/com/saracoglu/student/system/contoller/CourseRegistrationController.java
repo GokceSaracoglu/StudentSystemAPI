@@ -4,6 +4,7 @@ import com.saracoglu.student.system.dto.CourseRegistrationInfo;
 import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
 import com.saracoglu.student.system.service.CourseCatalogService;
 import com.saracoglu.student.system.service.CourseRegistrationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class CourseRegistrationController {
     // Register a student to a course
 
     @PostMapping
-    public ResponseEntity<CourseRegistrationInfo> registerStudentToCourse(@RequestBody CourseRegistrationInfo registrationInfo) {
+    public ResponseEntity<CourseRegistrationInfo> registerStudentToCourse(@Valid @RequestBody CourseRegistrationInfo registrationInfo) {
         CourseRegistrationInfo registeredCourse = courseRegistrationService.registerStudentToCourse(registrationInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredCourse);
     }

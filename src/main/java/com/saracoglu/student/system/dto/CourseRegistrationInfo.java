@@ -1,9 +1,13 @@
 package com.saracoglu.student.system.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 public class CourseRegistrationInfo {
     private Long id;
     private Long studentId; // studentId yerine
     private Long courseId;  // courseId yerine
+    @Min(0)  @Max(100)
     private Integer examScore;
 
     public CourseRegistrationInfo() {

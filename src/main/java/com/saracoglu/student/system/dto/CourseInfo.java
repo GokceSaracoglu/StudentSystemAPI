@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,8 @@ import lombok.NoArgsConstructor;
 
 public class CourseInfo {
     private Long id;
+    @NotEmpty(message = "Course name cannot be empty")
+    @Size(min = 2, max = 30)
     private String name;
 
     public CourseInfo(Long id, String name) {
