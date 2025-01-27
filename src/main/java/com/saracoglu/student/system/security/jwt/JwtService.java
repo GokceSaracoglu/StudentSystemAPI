@@ -57,12 +57,13 @@ public class JwtService {
 	public String getUsernameByToken(String token) {
 		return exportToken(token, Claims::getSubject);
 	}
-	
-	
+
+
 	public boolean isTokenExpired(String token) {
-		Date expiredDate= exportToken(token, Claims::getExpiration);
-		return new Date().before(expiredDate);
+		Date expiredDate = exportToken(token, Claims::getExpiration);
+		return expiredDate.before(new Date());
 	}
+
 	
 	public  Key getKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);

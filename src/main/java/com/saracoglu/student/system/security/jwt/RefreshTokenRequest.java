@@ -8,20 +8,20 @@ import lombok.Setter;
 
 public class RefreshTokenRequest {
 
-	private String refreshToken;
+    private String refreshToken;
 
-	public RefreshTokenRequest() {
-	}
+    public RefreshTokenRequest() {
+    }
 
-	public RefreshTokenRequest(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
+    public RefreshTokenRequest(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
-	public String getRefreshToken() {
-		return refreshToken;
-	}
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }

@@ -1,7 +1,7 @@
 package com.saracoglu.student.system.security.dto;
 
 
-public class DtoUser {
+public class UserResponse {
 
 	private String username;
 	
@@ -11,7 +11,7 @@ public class DtoUser {
 		return username;
 	}
 
-	public DtoUser() {
+	public UserResponse() {
 	}
 
 	public void setUsername(String username) {
@@ -26,7 +26,7 @@ public class DtoUser {
 		this.password = password;
 	}
 
-	public DtoUser(String username, String password) {
+	public UserResponse(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}

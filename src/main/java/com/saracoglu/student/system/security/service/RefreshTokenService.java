@@ -23,11 +23,12 @@ public class RefreshTokenService {
 	
 	@Autowired
 	private JwtService jwtService;
-	
+
 	public boolean isRefreshTokenExpired(Date expiredDate) {
-		return new Date().before(expiredDate);
+		return expiredDate.before(new Date());
 	}
-	
+
+
 	private RefreshToken createRefreshToken(User user) {
 		RefreshToken refreshToken = new RefreshToken();
 		refreshToken.setRefreshToken(UUID.randomUUID().toString());
@@ -36,8 +37,6 @@ public class RefreshTokenService {
 		
 		return refreshToken;
 	}
-
-	//sjkfaskf ksjf askjf aksjf kjsldfkjl
 
 	public AuthResponse refreshToken(RefreshTokenRequest request) {
 		Optional<RefreshToken> optional = refreshTokenRepository.findByRefreshToken(request.getRefreshToken());
@@ -50,7 +49,8 @@ public class RefreshTokenService {
 		if(!isRefreshTokenExpired(refreshToken.getExpireDate())) {
 			System.out.println("REFRESH TOKEN EXPİRE OLMUŞTUR BABA : " + request.getRefreshToken());
 		}
-		
+		refreshTokenRepository.deleteById(refreshToken.getId());
+
 		String accessToken = jwtService.generateToken(refreshToken.getUser());
 		RefreshToken savedRefreshToken= refreshTokenRepository.save(createRefreshToken(refreshToken.getUser()));
 		

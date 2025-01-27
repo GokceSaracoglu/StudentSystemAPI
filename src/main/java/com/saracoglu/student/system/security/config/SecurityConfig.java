@@ -1,47 +1,71 @@
 package com.saracoglu.student.system.security.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.saracoglu.student.system.filter.JwtAuthenticationFilter;
+import com.saracoglu.student.system.filter.LoggingFilter;
+import com.saracoglu.student.system.filter.RateLimitFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.saracoglu.student.system.security.jwt.AuthEntryPoint;
-import com.saracoglu.student.system.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	public static final String AUTHENTICATE = "/authenticate";
-	public static final String REGISTER = "/register";
-	public static final String REFRESH_TOKEN = "/refreshToken";
-	
-	@Autowired
-	private AuthenticationProvider authenticationProvider;
-	
-	@Autowired
-	private JwtAuthenticationFilter jwtAuthenticationFilter;
-	
-	@Autowired
-	private AuthEntryPoint authEntryPoint;
-	
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+	}
+
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-		.authorizeHttpRequests(request-> 
-		 request.requestMatchers(AUTHENTICATE , REGISTER , REFRESH_TOKEN)
-		.permitAll()
-		.anyRequest()
-		.authenticated())
-		.exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
-		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-		.authenticationProvider(authenticationProvider)
-		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+				// JWT filter'ını UsernamePasswordAuthenticationFilter'dan önce ekliyoruz
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+				.authorizeHttpRequests((authorizeRequests) ->
+						authorizeRequests
+								.requestMatchers("/public/**").permitAll()  // Public endpointlere izin veriyoruz
+								.anyRequest().authenticated()  // Diğer tüm istekler için kimlik doğrulama zorunluluğu
+				);
 		return http.build();
 	}
+
+	// AuthenticationManager bean'ini ekleyebilirsiniz
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+		return http.getSharedObject(AuthenticationManagerBuilder.class).build();
+	}
+	@Bean
+	public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthenticationFilterRegistration() {
+		FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(jwtAuthenticationFilter);
+		registrationBean.addUrlPatterns("/api/**");  // Bu filtreyi sadece /api/** endpointlerinde çalıştıracağız
+		registrationBean.setOrder(1);  // Filtrenin çalışacağı sırayı belirliyoruz (Daha düşük değer önce çalışır)
+		return registrationBean;
+	}
+	@Bean
+	public FilterRegistrationBean<RateLimitFilter> rateLimitFilterRegistrationBean() {
+		FilterRegistrationBean<RateLimitFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(new RateLimitFilter());
+		registrationBean.addUrlPatterns("/api/**");  // Sadece "/api/**" URL'leri için geçerli
+		registrationBean.setOrder(2);  // Rate limit filtresi 2. sırada çalışacak
+		return registrationBean;
+	}
+
+	@Bean
+	public FilterRegistrationBean<LoggingFilter> loggingFilterRegistrationBean() {
+		FilterRegistrationBean<LoggingFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(new LoggingFilter());
+		registrationBean.addUrlPatterns("/api/**");  // "/api/**" URL'leri için geçerli
+		registrationBean.setOrder(3);  // Logging filtreyi 3. sırada çalışacak
+		return registrationBean;
+	}
+
 }
+

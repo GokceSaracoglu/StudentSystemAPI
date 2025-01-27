@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.saracoglu.student.system.security.dto.DtoUser;
+import com.saracoglu.student.system.security.dto.UserResponse;
 import com.saracoglu.student.system.security.jwt.AuthRequest;
 import com.saracoglu.student.system.security.jwt.AuthResponse;
 import com.saracoglu.student.system.security.jwt.RefreshTokenRequest;
@@ -24,7 +24,7 @@ public class RestAuthController {
 	private RefreshTokenService refreshTokenService;
 
 	@PostMapping("/register")
-	public DtoUser register(@Valid @RequestBody AuthRequest request) {
+	public UserResponse register(@Valid @RequestBody AuthRequest request) {
 		return authService.register(request);
 	}
 

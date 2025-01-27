@@ -8,10 +8,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.saracoglu.student.system.security.dto.DtoUser;
+import com.saracoglu.student.system.security.dto.UserResponse;
 import com.saracoglu.student.system.security.jwt.AuthRequest;
 import com.saracoglu.student.system.security.jwt.AuthResponse;
 import com.saracoglu.student.system.security.jwt.JwtService;
@@ -48,8 +49,6 @@ public class AuthService {
 		return refreshToken;
 	}
 
-	
-
 	public AuthResponse authenticate(AuthRequest request) {
 		try {
 			UsernamePasswordAuthenticationToken auth =
@@ -57,6 +56,9 @@ public class AuthService {
 			authenticationProvider.authenticate(auth);
 			
 			Optional<User> optionalUser = userRepository.findByUsername(request.getUsername());
+			if (optionalUser.isEmpty()) {
+				throw new UsernameNotFoundException("Kullanıcı adı bulunamadı");
+			}
 			String accessToken = jwtService.generateToken(optionalUser.get());
 			
 			RefreshToken refreshToken = createRefreshToken(optionalUser.get());
@@ -69,12 +71,10 @@ public class AuthService {
 		}
 		return null;
 	}
-	
-	
-	
 
-	public DtoUser register(AuthRequest request) {
-		DtoUser dto = new DtoUser();
+
+	public UserResponse register(AuthRequest request) {
+		UserResponse dto = new UserResponse();
 		User user = new User();
 		
 		user.setUsername(request.getUsername());
@@ -85,8 +85,4 @@ public class AuthService {
 		return dto;
 	}
 
-
-	
-
-	
 }
