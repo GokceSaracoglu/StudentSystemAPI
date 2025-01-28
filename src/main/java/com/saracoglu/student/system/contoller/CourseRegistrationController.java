@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/api/course-registrations")
+@RequestMapping("/api/course-registrations")
 public class CourseRegistrationController {
 
     @Autowired

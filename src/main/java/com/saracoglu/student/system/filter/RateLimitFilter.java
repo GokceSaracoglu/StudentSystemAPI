@@ -14,28 +14,44 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    private static final long MAX_REQUESTS_PER_MINUTE = 100;
-    private static final ConcurrentHashMap<String, Long> requestCounts = new ConcurrentHashMap<>();
+    private static final long MAX_REQUESTS_PER_MINUTE = 1000;
+    private static final ConcurrentHashMap<String, IPRequestData> requestCounts = new ConcurrentHashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String clientIp = request.getRemoteAddr();
         long currentTime = System.currentTimeMillis();
 
-        requestCounts.putIfAbsent(clientIp, currentTime);
+        // IPRequestData nesnesi mevcutsa, istek sayısını güncelle
+        IPRequestData ipRequestData = requestCounts.get(clientIp);
 
-        long elapsedTime = currentTime - requestCounts.get(clientIp);
-
-        if (elapsedTime > TimeUnit.MINUTES.toMillis(1)) {
-            requestCounts.put(clientIp, currentTime); // Yeniden başlat
-        } else if (requestCounts.merge(clientIp, 1L, Long::sum) > MAX_REQUESTS_PER_MINUTE) {
-            response.setStatus(429); // HTTP 429: Too Many Requests
-            response.getWriter().write("Too many requests");
-            return;
-
+        if (ipRequestData == null) {
+            // Yeni bir IPRequestData nesnesi oluşturuyoruz
+            ipRequestData = new IPRequestData(currentTime, 0);
+            requestCounts.put(clientIp, ipRequestData);  // Burada IPRequestData'yı ekliyoruz
         }
 
-        filterChain.doFilter(request, response);
+        // Zaman aşımını kontrol et
+        long elapsedTime = currentTime - ipRequestData.getLastRequestTime();
+
+        if (elapsedTime > TimeUnit.MINUTES.toMillis(1)) {
+            // Bir dakikadan fazla süre geçtiyse, sayacı sıfırlıyoruz
+            ipRequestData.setLastRequestTime(currentTime);
+            ipRequestData.setRequestCount(1); // ilk isteği sayıyoruz
+        } else {
+            // Aksi takdirde, istek sayısını artırıyoruz
+            ipRequestData.setRequestCount(ipRequestData.getRequestCount() + 1);
+        }
+
+        if (ipRequestData.getRequestCount() > MAX_REQUESTS_PER_MINUTE) {
+            // Sınırı aşarsa, 429 (Too Many Requests) hatası döndürüyoruz
+            response.setStatus(429);
+            response.getWriter().write("Too many requests");
+            return;
+        }
+
+        filterChain.doFilter(request, response); // Filtrenin zincirini devam ettir
     }
 }
