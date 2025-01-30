@@ -1,7 +1,6 @@
 package com.saracoglu.student.system.dto;
 
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
 
 
 

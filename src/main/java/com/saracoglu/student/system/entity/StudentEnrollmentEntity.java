@@ -1,12 +1,8 @@
 package com.saracoglu.student.system.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
-
 @Table(name = "student")
 public class StudentEnrollmentEntity {
     public StudentEnrollmentEntity() {

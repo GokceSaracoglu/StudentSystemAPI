@@ -6,6 +6,9 @@ import com.saracoglu.student.system.exception.DepartmentNotFoundException;
 import com.saracoglu.student.system.repository.DepartmentCatalogRepository;
 import com.saracoglu.student.system.service.mapper.StudentSystemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,21 +23,21 @@ public class DepartmentCatalogService {
     @Autowired
     private StudentSystemMapper studentSystemMapper;
 
-    // Yeni bir departman ekleme
+    @CachePut(value = "departments", key = "#result.id")
     public DepartmentInfo addDepartment(DepartmentInfo departmentInfo) {
         DepartmentCatalogEntity departmentEntity = studentSystemMapper.convertToEntity(departmentInfo);
         DepartmentCatalogEntity savedEntity = departmentCatalogRepository.save(departmentEntity);
         return studentSystemMapper.convertToDto(savedEntity);
     }
 
-    // ID'ye göre departman getirme
+    @Cacheable(value = "departments", key = "#id")
     public DepartmentInfo getDepartmentById(Long id) {
         DepartmentCatalogEntity departmentEntity = departmentCatalogRepository.findById(id)
                 .orElseThrow(() -> new DepartmentNotFoundException("Department not found"));
         return studentSystemMapper.convertToDto(departmentEntity);
     }
 
-    // Tüm departmanları listeleme
+    @Cacheable(value = "allDepartments")
     public List<DepartmentInfo> getAllDepartments() {
         List<DepartmentCatalogEntity> departmentEntities = departmentCatalogRepository.findAll();
         return departmentEntities.stream()
@@ -42,7 +45,7 @@ public class DepartmentCatalogService {
                 .collect(Collectors.toList());
     }
 
-    // ID'ye göre departman silme
+    @CacheEvict(value = "departments", key = "#id")
     public void deleteDepartmentById(Long id) {
         if (!departmentCatalogRepository.existsById(id)) {
             throw new DepartmentNotFoundException("Department not found");

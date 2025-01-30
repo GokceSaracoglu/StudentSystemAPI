@@ -10,6 +10,9 @@ import com.saracoglu.student.system.repository.CourseCatalogRepository;
 import com.saracoglu.student.system.repository.CourseRegistrationRepository;
 import com.saracoglu.student.system.service.mapper.StudentSystemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,27 +30,24 @@ public class CourseCatalogService {
     private StudentSystemMapper studentSystemMapper;
 
     @Autowired
-    CourseRegistrationRepository courseRegistrationRepository;
+    private CourseRegistrationRepository courseRegistrationRepository;
 
+    @CachePut(value = "courses", key = "#result.id")
     public CourseInfo addCourse(CourseInfo courseInfo) {
-        // DTO -> Entity dönüşümü
         CourseCatalogEntity courseEntity = studentSystemMapper.convertToEntity(courseInfo);
-
-        // Veritabanına kaydetme
         CourseCatalogEntity savedEntity = courseCatalogRepository.save(courseEntity);
-
-        // Entity -> DTO dönüşümü
         return studentSystemMapper.convertToDto(savedEntity);
     }
 
+    @Cacheable(value = "courses", key = "#id")
     public CourseInfo getCourseById(Long id) {
         CourseCatalogEntity courseEntity = courseCatalogRepository.findById(id)
-                .orElseThrow(() -> new  CourseNotFoundException(format("%d id'li bir ders bulunamadı", id)));
+                .orElseThrow(() -> new CourseNotFoundException(format("%d id'li bir ders bulunamadı", id)));
         return studentSystemMapper.convertToDto(courseEntity);
     }
 
+    @Cacheable(value = "allCourses")
     public List<CourseInfo> getCourses() {
-
         List<CourseCatalogEntity> courseEntities = courseCatalogRepository.findAll();
         if (courseEntities.isEmpty()) {
             throw new NoCourseFoundException("veritabanında hiç ders yok");
@@ -57,19 +57,20 @@ public class CourseCatalogService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "courses", key = "#id")
     public void deleteCourseById(Long id) {
-        // Verilen ID'ye sahip kurs var mı kontrol et
         if (!courseCatalogRepository.existsById(id)) {
-            throw new  CourseNotFoundException(format("%d id'li bir ders bulunamadı", id));
+            throw new CourseNotFoundException(format("%d id'li bir ders bulunamadı", id));
         }
-        // Kursu sil
         courseCatalogRepository.deleteById(id);
     }
+
+    @Cacheable(value = "courseStudents", key = "#courseId")
     public List<StudentEnrollmentEntity> getStudentsByCourse(Long courseId) {
         if (!courseCatalogRepository.existsById(courseId)) {
-            throw new CourseNotFoundException(format("%d id'li bir ders bulunamadı", courseId));}
+            throw new CourseNotFoundException(format("%d id'li bir ders bulunamadı", courseId));
+        }
         List<CourseRegistrationEntity> registrations = courseRegistrationRepository.findByCourseId(courseId);
-        // CourseRegistrationEntity'lerden öğrenci bilgilerini almak
         return registrations.stream()
                 .map(CourseRegistrationEntity::getStudent)
                 .collect(Collectors.toList());

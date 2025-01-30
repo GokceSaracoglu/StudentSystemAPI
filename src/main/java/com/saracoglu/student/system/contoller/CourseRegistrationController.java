@@ -1,7 +1,6 @@
 package com.saracoglu.student.system.contoller;
 
 import com.saracoglu.student.system.dto.CourseRegistrationInfo;
-import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
 import com.saracoglu.student.system.service.CourseCatalogService;
 import com.saracoglu.student.system.service.CourseRegistrationService;
 import jakarta.validation.Valid;

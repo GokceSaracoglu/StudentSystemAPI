@@ -8,8 +8,6 @@ public class IPRequestData {
         this.lastRequestTime = lastRequestTime;
         this.requestCount = requestCount;
     }
-
-    // Getter ve setter metodları
     public long getLastRequestTime() {
         return lastRequestTime;
     }

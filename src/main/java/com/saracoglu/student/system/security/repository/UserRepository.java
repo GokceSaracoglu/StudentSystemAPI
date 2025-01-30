@@ -1,16 +1,15 @@
 package com.saracoglu.student.system.security.repository;
 
-import java.util.Optional;
-
+import com.saracoglu.student.system.security.entity.SecurityUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.saracoglu.student.system.security.entity.User;
+import java.util.Optional;
 
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<SecurityUser, Long>{
 
 //	@Query(value = "from User where username = :username")
-	Optional<User> findByUsername(String username);
+	Optional<SecurityUser> findByUsername(String username);
 }

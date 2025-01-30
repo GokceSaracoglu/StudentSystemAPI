@@ -1,7 +1,6 @@
 package com.saracoglu.student.system.exception.handler;
 
 import com.saracoglu.student.system.exception.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

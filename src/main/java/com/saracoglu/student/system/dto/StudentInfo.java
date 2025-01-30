@@ -1,15 +1,10 @@
 package com.saracoglu.student.system.dto;
 
-import com.saracoglu.student.system.entity.DepartmentCatalogEntity;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 
-public class StudentInfo {
+public class  StudentInfo {
     private Long id;
     @NotEmpty(message = "First name cannot to be empty")
     private String firstName;

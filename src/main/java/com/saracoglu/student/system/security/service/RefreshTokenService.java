@@ -1,18 +1,16 @@
 package com.saracoglu.student.system.security.service;
 
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.saracoglu.student.system.security.entity.RefreshToken;
+import com.saracoglu.student.system.security.entity.SecurityUser;
+import com.saracoglu.student.system.security.model.AuthenticationResponse;
+import com.saracoglu.student.system.security.model.RefreshTokenRequest;
+import com.saracoglu.student.system.security.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.saracoglu.student.system.security.jwt.AuthResponse;
-import com.saracoglu.student.system.security.jwt.JwtService;
-import com.saracoglu.student.system.security.jwt.RefreshTokenRequest;
-import com.saracoglu.student.system.security.entity.RefreshToken;
-import com.saracoglu.student.system.security.entity.User;
-import com.saracoglu.student.system.security.repository.RefreshTokenRepository;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -29,7 +27,7 @@ public class RefreshTokenService {
 	}
 
 
-	private RefreshToken createRefreshToken(User user) {
+	private RefreshToken createRefreshToken(SecurityUser user) {
 		RefreshToken refreshToken = new RefreshToken();
 		refreshToken.setRefreshToken(UUID.randomUUID().toString());
 		refreshToken.setExpireDate(new Date(System.currentTimeMillis()+ 1000*60*60*4));
@@ -38,7 +36,7 @@ public class RefreshTokenService {
 		return refreshToken;
 	}
 
-	public AuthResponse refreshToken(RefreshTokenRequest request) {
+	public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
 		Optional<RefreshToken> optional = refreshTokenRepository.findByRefreshToken(request.getRefreshToken());
 		if(optional.isEmpty()) {
 			System.out.println("REFRESH TOKEN GEÇERSİZDİR : " + request.getRefreshToken());
@@ -53,11 +51,6 @@ public class RefreshTokenService {
 
 		String accessToken = jwtService.generateToken(refreshToken.getUser());
 		RefreshToken savedRefreshToken= refreshTokenRepository.save(createRefreshToken(refreshToken.getUser()));
-		
-		// accesss 2
-		// refresh 1
-		
-		return new AuthResponse(accessToken, savedRefreshToken.getRefreshToken());
+		return new AuthenticationResponse(accessToken, savedRefreshToken.getRefreshToken());
 	}
-
 }

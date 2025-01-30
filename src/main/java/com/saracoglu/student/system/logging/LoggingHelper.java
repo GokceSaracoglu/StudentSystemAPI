@@ -13,9 +13,6 @@ public class LoggingHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingHelper.class);
 
-    /**
-     * Gelen isteği loglar.
-     */
     public void logRequest(HttpServletRequest request) {
         StringBuilder requestLog = new StringBuilder();
         requestLog.append("Gelen İstek: ")
@@ -32,17 +29,10 @@ public class LoggingHelper {
 
         logger.info(requestLog.toString());
     }
-
-    /**
-     * Giden yanıtı loglar.
-     */
     public void logResponse(HttpServletResponse response) {
         logger.info("Yanıt Durumu: " + response.getStatus());
     }
 
-    /**
-     * Hata mesajlarını loglar.
-     */
     public void logError(String message, Throwable throwable) {
         logger.error("Hata: " + message, throwable);
     }

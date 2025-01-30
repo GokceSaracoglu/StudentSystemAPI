@@ -1,7 +1,6 @@
 package com.saracoglu.student.system.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 

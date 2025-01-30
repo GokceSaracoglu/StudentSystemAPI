@@ -31,37 +31,24 @@ public class CourseRegistrationService {
     @Autowired
     private StudentSystemMapper studentSystemMapper;
 
-    // Register a student to a course
     public CourseRegistrationInfo registerStudentToCourse(CourseRegistrationInfo registrationInfo) {
-        // Öğrenci ve ders ID'lerini al
         Long studentId = registrationInfo.getStudentId();
         Long courseId = registrationInfo.getCourseId();
 
-        // Öğrenciyi ve dersi veritabanından bul
         StudentEnrollmentEntity student = studentManagementRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(String.format("Öğrenci (%s) bulunamadı.", studentId)));
-
         CourseCatalogEntity course = courseCatalogRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(String.format("Ders (%s) bulunamadı.", courseId)));
-
-        // CourseRegistrationEntity nesnesini oluştur
         CourseRegistrationEntity registrationEntity = new CourseRegistrationEntity();
         registrationEntity.setStudent(student);
         registrationEntity.setCourse(course);
-
-        // examScore opsiyonel, eğer varsa kaydet
         if (registrationInfo.getExamScore() != null) {
             registrationEntity.setExamScore(registrationInfo.getExamScore());
         }
-
-        // Kayıt işlemi
         courseRegistrationRepository.save(registrationEntity);
-
-        // DTO'ya dönüştür ve döndür
         return studentSystemMapper.convertToDto(registrationEntity);
     }
 
-    // Get all course registrations
     public List<CourseRegistrationInfo> getAllCourseRegistrations() {
         List<CourseRegistrationEntity> registrations = courseRegistrationRepository.findAll();
         return registrations.stream()
@@ -69,14 +56,12 @@ public class CourseRegistrationService {
                 .collect(Collectors.toList());
     }
 
-    // Get course registration by ID
     public CourseRegistrationInfo getCourseRegistrationById(Long id) {
         CourseRegistrationEntity registrationEntity = courseRegistrationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Registration not found"));
         return studentSystemMapper.convertToDto(registrationEntity);
     }
 
-    // Delete course registration by ID
     public void deleteCourseRegistrationById(Long id) {
         if (!courseRegistrationRepository.existsById(id)) {
             throw new RuntimeException("Registration not found");

@@ -1,13 +1,18 @@
 package com.saracoglu.student.system.service.mapper;
 
-import com.saracoglu.student.system.dto.*;
-import com.saracoglu.student.system.entity.*;
+import com.saracoglu.student.system.dto.CourseInfo;
+import com.saracoglu.student.system.dto.CourseRegistrationInfo;
+import com.saracoglu.student.system.dto.DepartmentInfo;
+import com.saracoglu.student.system.dto.StudentInfo;
+import com.saracoglu.student.system.entity.CourseCatalogEntity;
+import com.saracoglu.student.system.entity.CourseRegistrationEntity;
+import com.saracoglu.student.system.entity.DepartmentCatalogEntity;
+import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StudentSystemMapper {
 
-    // StudentInfo <-> StudentEnrollmentEntity
     public StudentEnrollmentEntity convertToEntity(StudentInfo studentInfo) {
         StudentEnrollmentEntity studentEntity = new StudentEnrollmentEntity();
         studentEntity.setId(studentInfo.getId());
@@ -29,7 +34,6 @@ public class StudentSystemMapper {
         return studentInfo;
     }
 
-    // CourseInfo <-> CourseCatalogEntity
     public CourseCatalogEntity convertToEntity(CourseInfo courseInfo) {
         CourseCatalogEntity courseEntity = new CourseCatalogEntity();
         courseEntity.setId(courseInfo.getId());
@@ -44,13 +48,11 @@ public class StudentSystemMapper {
         return courseInfo;
     }
 
-    // CourseRegistrationInfo <-> CourseRegistrationEntity
     public CourseRegistrationEntity convertToEntity(CourseRegistrationInfo courseRegistrationInfo) {
         CourseRegistrationEntity courseRegistrationEntity = new CourseRegistrationEntity();
         courseRegistrationEntity.setId(courseRegistrationInfo.getId());
         courseRegistrationEntity.setExamScore(courseRegistrationInfo.getExamScore());
 
-        // Convert studentId and courseId into student and course entities
         if (courseRegistrationInfo.getStudentId() != null) {
             StudentEnrollmentEntity student = new StudentEnrollmentEntity();
             student.setId(courseRegistrationInfo.getStudentId());
@@ -75,7 +77,6 @@ public class StudentSystemMapper {
         return courseRegistrationInfo;
     }
 
-    // DepartmentInfo <-> DepartmentCatalogEntity
     public DepartmentCatalogEntity convertToEntity(DepartmentInfo departmentInfo) {
         DepartmentCatalogEntity departmentEntity = new DepartmentCatalogEntity();
         departmentEntity.setId(departmentInfo.getId());

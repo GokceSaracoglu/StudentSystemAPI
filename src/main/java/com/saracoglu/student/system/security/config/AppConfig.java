@@ -1,54 +1,35 @@
 package com.saracoglu.student.system.security.config;
 
-import java.util.Optional;
 
+import com.saracoglu.student.system.security.repository.UserRepository;
+import com.saracoglu.student.system.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import com.saracoglu.student.system.security.entity.User;
-import com.saracoglu.student.system.security.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AppConfig {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Bean
-	public UserDetailsService userDetailsService() {
-		return new UserDetailsService() {
-
-			@Override
-			public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-				Optional<User> optional = userRepository.findByUsername(username);
-				if (optional.isPresent()) {
-					return optional.get();
-				}
-				throw new UsernameNotFoundException("User not found");
-			}
-		};
+	public UserDetailsService userDetailsService(CustomUserDetailsService customUserDetailsService) {
+		return customUserDetailsService;
 	}
 
 	@Bean
-	public AuthenticationProvider authenticationProvider() {
+	public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService());
-		authenticationProvider.setPasswordEncoder(passwordEncoder());
-
+		authenticationProvider.setUserDetailsService(userDetailsService); // Metot çağırmak yerine bağımlılığı al
+		authenticationProvider.setPasswordEncoder(passwordEncoder);
 		return authenticationProvider;
 	}
 
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
 }
