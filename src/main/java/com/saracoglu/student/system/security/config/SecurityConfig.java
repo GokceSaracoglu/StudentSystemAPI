@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,28 +24,39 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
+
+    public static final String[] SWAGGER_PATHS  = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html"
+    };
     public SecurityConfig(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable) // CSRF korumasını devre dışı bırakıyoruz (API için yaygın)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> {
-                    System.out.println("🛠️ Security Yetkilendirme Başladı");
                     authz
+                            .requestMatchers(SWAGGER_PATHS).permitAll()
                             .requestMatchers("/api/authenticate", "/api/register").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("STUDENT", "TEACHER")
+                            .requestMatchers(HttpMethod.GET, "/api/**").hasAnyAuthority("ROLE_STUDENT", "ROLE_TEACHER")
                             .requestMatchers("/api/**").hasAuthority("ROLE_TEACHER")
                             .anyRequest().authenticated();
                 })
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // ✅ JWT Filtresini Manuel Ekle
         return http.build();
     }
 
-@Bean
+
+    @Bean
 public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
     AuthenticationManagerBuilder authenticationManagerBuilder =
             http.getSharedObject(AuthenticationManagerBuilder.class);

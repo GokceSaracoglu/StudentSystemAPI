@@ -25,37 +25,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtService jwtService;
 
-	public JwtService getJwtService() {
-		return jwtService;
-	}
-
-	public void setJwtService(JwtService jwtService) {
-		this.jwtService = jwtService;
-	}
-
-	public UserDetailsService getUserDetailsService() {
-		return userDetailsService;
-	}
-
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
-
-	public JwtAuthenticationFilter() {
-	}
-
-	public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-		this.jwtService = jwtService;
-		this.userDetailsService = userDetailsService;
-	}
-
 	@Autowired
 	private UserDetailsService userDetailsService;
+
+	// Swagger yollarını tanımla
+	private static final String[] SWAGGER_PATHS = {
+			"/swagger-ui/**",
+			"/v3/api-docs/**",
+			"/swagger-ui.html"
+	};
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
+		String requestURI = request.getRequestURI();
+
+		// Swagger yollarını atla
+		for (String swaggerPath : SWAGGER_PATHS) {
+			if (requestURI.startsWith(swaggerPath.replace("/**", ""))) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+		}
 		// Authorization Header'ı logla
 		String header = request.getHeader("Authorization");
 		System.out.println("📌 Authorization Header: " + header);
@@ -78,7 +70,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				if (userDetails != null && !jwtService.isTokenExpired(token)) {
 					String role = (String) jwtService.getClaimsByKey(token, "role");
 					System.out.println("📌 JWT İçinden Çıkan Rol: " + role);
-					// Burada role kontrolünü yap
+
+					if (role != null && !role.startsWith("ROLE_")) {
+						role = "ROLE_" + role; // Eğer ROLE_ prefix'i yoksa ekleyelim
+					}
+
 					List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
 
 					UsernamePasswordAuthenticationToken authentication =
@@ -93,7 +89,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		} catch (Exception e) {
 			System.out.println("Token doğrulama hatası : " + e.getMessage());
 		}
-
 		filterChain.doFilter(request, response);
 	}
 }

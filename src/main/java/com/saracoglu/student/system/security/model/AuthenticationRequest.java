@@ -1,7 +1,7 @@
 package com.saracoglu.student.system.security.model;
 
 import jakarta.validation.constraints.NotEmpty;
-
+import lombok.*;
 
 public class AuthenticationRequest {
 
@@ -13,29 +13,12 @@ public class AuthenticationRequest {
 
 	private Role role;
 
-	public AuthenticationRequest(String password, String username) {
-		this.password = password;
-		this.username = username;
+	public AuthenticationRequest() {
 	}
 
 	public AuthenticationRequest(String username, String password, Role role) {
 		this.username = username;
 		this.password = password;
-		this.role = role;
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
-
-	public AuthenticationRequest() {
-	}
-
-	public AuthenticationRequest(Role role) {
 		this.role = role;
 	}
 
@@ -53,5 +36,13 @@ public class AuthenticationRequest {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 }

@@ -13,11 +13,13 @@ import com.saracoglu.student.system.service.mapper.StudentSystemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class CourseRegistrationService {
+public class CourseRegistrationService implements Serializable {
+    private static final long serialVersionUID = 2024013102L;
 
     @Autowired
     private CourseRegistrationRepository courseRegistrationRepository;

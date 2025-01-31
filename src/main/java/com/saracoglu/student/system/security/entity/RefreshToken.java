@@ -1,8 +1,10 @@
 package com.saracoglu.student.system.security.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Date;
+
 
 @Entity
 @Table(name = "refresh_token")
@@ -17,6 +19,16 @@ public class RefreshToken {
 	
 	@Column(name = "expire_date")
 	private Date expireDate;
+
+	@ManyToOne
+	private SecurityUser user;
+
+	public RefreshToken(Long id, String refreshToken, Date expireDate, SecurityUser user) {
+		this.id = id;
+		this.refreshToken = refreshToken;
+		this.expireDate = expireDate;
+		this.user = user;
+	}
 
 	public RefreshToken() {
 	}
@@ -37,14 +49,6 @@ public class RefreshToken {
 		this.refreshToken = refreshToken;
 	}
 
-	public Date getExpireDate() {
-		return expireDate;
-	}
-
-	public void setExpireDate(Date expireDate) {
-		this.expireDate = expireDate;
-	}
-
 	public SecurityUser getUser() {
 		return user;
 	}
@@ -53,13 +57,11 @@ public class RefreshToken {
 		this.user = user;
 	}
 
-	public RefreshToken(Long id, String refreshToken, Date expireDate, SecurityUser user) {
-		this.id = id;
-		this.refreshToken = refreshToken;
-		this.expireDate = expireDate;
-		this.user = user;
+	public Date getExpireDate() {
+		return expireDate;
 	}
 
-	@ManyToOne
-	private SecurityUser user;
+	public void setExpireDate(Date expireDate) {
+		this.expireDate = expireDate;
+	}
 }

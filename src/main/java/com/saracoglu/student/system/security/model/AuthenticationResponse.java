@@ -1,6 +1,7 @@
 package com.saracoglu.student.system.security.model;
 
 
+import lombok.*;
 
 public class AuthenticationResponse {
 
@@ -8,12 +9,12 @@ public class AuthenticationResponse {
 	
 	private String refreshToken;
 
-	public AuthenticationResponse() {
-	}
-
 	public AuthenticationResponse(String accessToken, String refreshToken) {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
+	}
+
+	public AuthenticationResponse() {
 	}
 
 	public String getAccessToken() {

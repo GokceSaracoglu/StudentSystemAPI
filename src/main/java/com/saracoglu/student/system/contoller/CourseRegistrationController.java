@@ -4,6 +4,7 @@ import com.saracoglu.student.system.dto.CourseRegistrationInfo;
 import com.saracoglu.student.system.service.CourseCatalogService;
 import com.saracoglu.student.system.service.CourseRegistrationService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,6 @@
 package com.saracoglu.student.system.security.model;
 
+import lombok.*;
 
 public class RefreshTokenRequest {
 

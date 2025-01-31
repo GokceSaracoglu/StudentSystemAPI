@@ -1,15 +1,34 @@
 package com.saracoglu.student.system.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "student")
 public class StudentEnrollmentEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name = "middle_name")
+    private String middleName;
+    @Column(name = "last_name")
+    private String lastName;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private DepartmentCatalogEntity department;
+
     public StudentEnrollmentEntity() {
     }
 
-    public StudentEnrollmentEntity(String firstName, String middleName, String lastName, DepartmentCatalogEntity department) {
-
+    public StudentEnrollmentEntity(Long id, String firstName, String middleName, String lastName, DepartmentCatalogEntity department) {
+        this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
@@ -40,14 +59,6 @@ public class StudentEnrollmentEntity {
         this.middleName = middleName;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public DepartmentCatalogEntity getDepartment() {
         return department;
     }
@@ -56,17 +67,11 @@ public class StudentEnrollmentEntity {
         this.department = department;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    public String getLastName() {
+        return lastName;
+    }
 
-    @Column(name = "first_name")
-    private String firstName;
-    @Column(name = "middle_name")
-    private String middleName;
-    @Column(name = "last_name")
-    private String lastName;
-    @ManyToOne
-    @JoinColumn(name = "department_id")
-    private DepartmentCatalogEntity department;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 }

@@ -1,6 +1,11 @@
 package com.saracoglu.student.system.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Entity
 @Table(name = "course_registration")
@@ -19,14 +24,14 @@ public class CourseRegistrationEntity {
     @Column(name = "exam_score")
     private Integer examScore;
 
-    public CourseRegistrationEntity(Long id, StudentEnrollmentEntity student, CourseCatalogEntity course, Integer examScore) {
-        this.id = id;
-        this.student = student;
-        this.course = course;
-        this.examScore = examScore;
+    public CourseRegistrationEntity() {
     }
 
-    public CourseRegistrationEntity() {
+    public CourseRegistrationEntity(Long id, Integer examScore, CourseCatalogEntity course, StudentEnrollmentEntity student) {
+        this.id = id;
+        this.examScore = examScore;
+        this.course = course;
+        this.student = student;
     }
 
     public Long getId() {

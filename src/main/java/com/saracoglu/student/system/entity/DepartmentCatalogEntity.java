@@ -1,24 +1,29 @@
 package com.saracoglu.student.system.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Entity
-
-
 @Table(name = "department")
 public class DepartmentCatalogEntity {
-    public DepartmentCatalogEntity(String name) {
-        this.name = name;
-    }
-
-    public DepartmentCatalogEntity() {
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "name")
     private String name;
+
+    public DepartmentCatalogEntity() {
+    }
+
+    public DepartmentCatalogEntity(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public Long getId() {
         return id;

@@ -2,6 +2,11 @@ package com.saracoglu.student.system.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 public class CourseRegistrationInfo {
     private Long id;
@@ -13,10 +18,10 @@ public class CourseRegistrationInfo {
     public CourseRegistrationInfo() {
     }
 
-    public CourseRegistrationInfo(Long id, Long studentId, Long courseId, Integer examScore) {
+    public CourseRegistrationInfo(Long id, Long courseId, Long studentId, Integer examScore) {
         this.id = id;
-        this.studentId = studentId;
         this.courseId = courseId;
+        this.studentId = studentId;
         this.examScore = examScore;
     }
 

@@ -21,17 +21,24 @@ public class JwtService {
 
 	public String generateToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
+
 		String role = userDetails.getAuthorities().stream()
 				.map(grantedAuthority -> grantedAuthority.getAuthority())
 				.findFirst()
-				.orElse("ROLE_STUDENT");  // Varsayılan olarak ROLE_STUDENT
+				.orElse("STUDENT");
+
+		if (!role.startsWith("ROLE_")) {
+			role = "ROLE_" + role;
+		}
+
 		claims.put("role", role);
+
 		return Jwts.builder()
-				.setSubject(userDetails.getUsername())  // Kullanıcı adı
-				.addClaims(claims)  // Claim'leri ekliyoruz
-				.setIssuedAt(new Date())  // Token oluşturulma zamanı
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2))  // 2 saatlik geçerlilik süresi
-				.signWith(getKey(), SignatureAlgorithm.HS256)  // SecretKey ile imzalama
+				.setSubject(userDetails.getUsername())
+				.addClaims(claims)
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2)) // 2 saat
+				.signWith(getKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 
@@ -41,8 +48,9 @@ public class JwtService {
 	}
 
 	public Claims getClaims(String token) {
-		return  Jwts.parser()
-				.setSigningKey(getKey())
+		return Jwts.parserBuilder()
+				.setSigningKey(getKey())  // Anahtarı doğru şekilde kullanın
+				.build()
 				.parseClaimsJws(token)
 				.getBody();
 	}
@@ -60,11 +68,12 @@ public class JwtService {
 		Claims claims = getClaims(token);
 		String role = claims.get("role", String.class);
 
-		if (role != null && role.startsWith("ROLE_")) {
-			role = role.substring(5);  // 'ROLE_' kısmını çıkarıyoruz
+		if (role != null && !role.startsWith("ROLE_")) {
+			role = "ROLE_" + role;  // Eğer başında ROLE_ yoksa ekleyelim
 		}
 		return role;
 	}
+
 
 	public boolean isTokenExpired(String token) {
 		Date expirationDate = exportToken(token, Claims::getExpiration);

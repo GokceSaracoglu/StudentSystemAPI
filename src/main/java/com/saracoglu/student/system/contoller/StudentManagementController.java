@@ -3,6 +3,7 @@ package com.saracoglu.student.system.contoller;
 import com.saracoglu.student.system.dto.StudentInfo;
 import com.saracoglu.student.system.service.StudentManagementService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

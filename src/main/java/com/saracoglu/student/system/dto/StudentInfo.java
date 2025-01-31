@@ -2,6 +2,7 @@ package com.saracoglu.student.system.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 
 public class  StudentInfo {
@@ -14,59 +15,56 @@ public class  StudentInfo {
     @NotNull(message = "Department ID is required")
     private Long departmentId;
 
-    public StudentInfo(String firstName, String middleName, String lastName, Long departmentId) {
-                this.firstName = firstName;
-                this.middleName = middleName;
-                this.lastName = lastName;
-                this.departmentId = departmentId;
+    public StudentInfo() {
     }
 
-    public StudentInfo() {
-
+    public StudentInfo(Long id, String firstName, String middleName, String lastName, Long departmentId) {
+        this.id = id;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.departmentId = departmentId;
     }
 
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
-                this.id = id;
+        this.id = id;
     }
 
-
-
     public String getFirstName() {
-                return firstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
-                this.firstName = firstName;
+        this.firstName = firstName;
     }
 
     public String getMiddleName() {
-                return middleName;
+        return middleName;
     }
 
     public void setMiddleName(String middleName) {
-                this.middleName = middleName;
+        this.middleName = middleName;
     }
 
     public String getLastName() {
-                return lastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-                this.lastName = lastName;
+        this.lastName = lastName;
     }
 
     public Long getDepartmentId() {
-                return departmentId;
+        return departmentId;
     }
 
     public void setDepartmentId(Long departmentId) {
-                this.departmentId = departmentId;
+        this.departmentId = departmentId;
     }
-
-
 }
 
 

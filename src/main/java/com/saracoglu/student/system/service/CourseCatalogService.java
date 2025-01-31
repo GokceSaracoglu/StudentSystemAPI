@@ -15,13 +15,15 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 @Service
-public class CourseCatalogService {
+public class CourseCatalogService implements Serializable {
+    private static final long serialVersionUID = 2024013101L;
 
     @Autowired
     private CourseCatalogRepository courseCatalogRepository;

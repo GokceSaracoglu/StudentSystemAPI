@@ -11,11 +11,13 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class DepartmentCatalogService {
+public class DepartmentCatalogService implements Serializable {
+    private static final long serialVersionUID = 20240131014L;
 
     @Autowired
     private DepartmentCatalogRepository departmentCatalogRepository;
