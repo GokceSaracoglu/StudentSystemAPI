@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
 @Service
 public class StudentManagementService implements Serializable {
     private static final long serialVersionUID = 2024013103L;
@@ -49,11 +49,9 @@ public class StudentManagementService implements Serializable {
     }
 
     @Cacheable(value = "allStudents")
-    public List<StudentInfo> getStudents() {
-        List<StudentEnrollmentEntity> students = studentManagementRepository.findAll();
-        return students.stream()
-                .map(studentSystemMapper::convertToDto)
-                .collect(Collectors.toList());
+    public Page<StudentInfo> findAllPageable(Pageable pageable) {
+        Page<StudentEnrollmentEntity> students = studentManagementRepository.findAll(pageable);
+        return students.map(studentSystemMapper::convertToDto);
     }
 
     @CacheEvict(value = "students", key = "#studentId")

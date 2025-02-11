@@ -1,8 +1,5 @@
 package com.saracoglu.student.system.security.model;
 
-import lombok.*;
-
-
 public class UserCredentialsResponse {
 
 	private String username;

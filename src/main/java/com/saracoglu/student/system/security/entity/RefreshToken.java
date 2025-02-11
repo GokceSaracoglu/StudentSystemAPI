@@ -1,7 +1,6 @@
 package com.saracoglu.student.system.security.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.Date;
 

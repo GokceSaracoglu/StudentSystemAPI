@@ -1,4 +1,4 @@
-package com.saracoglu.student.system.security.config;
+package com.saracoglu.student.system.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

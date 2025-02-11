@@ -3,7 +3,6 @@ package com.saracoglu.student.system.contoller;
 import com.saracoglu.student.system.dto.CourseInfo;
 import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
 import com.saracoglu.student.system.service.CourseCatalogService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

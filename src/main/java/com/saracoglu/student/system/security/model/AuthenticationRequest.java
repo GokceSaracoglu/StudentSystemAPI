@@ -1,7 +1,6 @@
 package com.saracoglu.student.system.security.model;
 
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
 
 public class AuthenticationRequest {
 

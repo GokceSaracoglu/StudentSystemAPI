@@ -1,4 +1,4 @@
-package com.saracoglu.student.system.security.config;
+package com.saracoglu.student.system.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

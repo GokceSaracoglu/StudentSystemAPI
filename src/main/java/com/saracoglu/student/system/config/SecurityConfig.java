@@ -1,4 +1,4 @@
-package com.saracoglu.student.system.security.config;
+package com.saracoglu.student.system.config;
 
 import com.saracoglu.student.system.filter.JwtAuthenticationFilter;
 import com.saracoglu.student.system.security.repository.UserRepository;
