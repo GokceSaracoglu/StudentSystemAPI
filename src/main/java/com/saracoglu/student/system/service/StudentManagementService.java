@@ -1,7 +1,9 @@
 package com.saracoglu.student.system.service;
 
+import com.saracoglu.student.system.exception.ColumnNotFoundException;
 import com.saracoglu.student.system.dto.StudentInfo;
 import com.saracoglu.student.system.entity.StudentEnrollmentEntity;
+import com.saracoglu.student.system.exception.InvalidPageRequestException;
 import com.saracoglu.student.system.exception.StudentNotFoundException;
 import com.saracoglu.student.system.repository.DepartmentCatalogRepository;
 import com.saracoglu.student.system.repository.StudentManagementRepository;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+
 @Service
 public class StudentManagementService implements Serializable {
     private static final long serialVersionUID = 2024013103L;
@@ -51,6 +54,13 @@ public class StudentManagementService implements Serializable {
     @Cacheable(value = "allStudents")
     public Page<StudentInfo> findAllPageable(Pageable pageable) {
         Page<StudentEnrollmentEntity> students = studentManagementRepository.findAll(pageable);
+
+        if (students.getTotalPages() > 0 && pageable.getPageNumber() >= students.getTotalPages()) {
+            throw new InvalidPageRequestException(
+                    String.format("Geçersiz sayfa numarası: %d. Toplam sayfa sayısı: %d",
+                            pageable.getPageNumber(), students.getTotalPages()));
+        }
+
         return students.map(studentSystemMapper::convertToDto);
     }
 
@@ -60,5 +70,18 @@ public class StudentManagementService implements Serializable {
             throw new StudentNotFoundException(String.format("Öğrenci (%s) bulunamadı.", studentId));
         }
         studentManagementRepository.deleteById(studentId);
+    }
+
+    public void checkColumnExistence(String columnName) {
+        // Bu, örnek olarak kullanılan bir metot. Gerçek sütun kontrolü yapılmalı.
+        if (!columnExistsInDatabase(columnName)) {
+            throw new ColumnNotFoundException("Veritabanında '" + columnName + "' adında bir sütun bulunamadı.");
+        }
+    }
+
+    private boolean columnExistsInDatabase(String columnName) {
+        // Bu, sadece örnek olarak yazılmıştır.
+        // Gerçek veritabanı sorgusu ile sütunun varlığı kontrol edilmelidir.
+        return false;
     }
 }

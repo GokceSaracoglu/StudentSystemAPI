@@ -1,6 +1,7 @@
 package com.saracoglu.student.system.exception.handler;
 
 import com.saracoglu.student.system.exception.*;
+import com.saracoglu.student.system.logging.LoggingHelper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,140 +12,114 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // HttpMessageNotReadableException için mevcut handler
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList("Geçersiz değer girişi: " + ex.getMessage()));
+    private final LoggingHelper loggingHelper;
 
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.badRequest().body(apiError);
+    public GlobalExceptionHandler(LoggingHelper loggingHelper) {
+        this.loggingHelper = loggingHelper;
     }
 
-    // MethodArgumentNotValidException için yeni handler
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleHttpMessageNotReadableException(HttpServletRequest request, HttpMessageNotReadableException ex) {
+        return handleException(request, ex, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(ColumnNotFoundException.class)
+    public ResponseEntity<ApiError> handleColumnNotFoundException(HttpServletRequest request, ColumnNotFoundException ex) {
+        return handleException(request, ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidPageRequestException.class)
+    public ResponseEntity<ApiError> handleInvalidPageRequestException(HttpServletRequest request, InvalidPageRequestException ex) {
+        return handleException(request, ex, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(HttpServletRequest request, MethodArgumentNotValidException ex) {
+        Map<String, List<String>> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.computeIfAbsent(error.getField(), k -> new ArrayList<>()).add(error.getDefaultMessage()));
 
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            String fieldName = error.getField();
-            String errorMessage = error.getDefaultMessage();
-            errorsMap.computeIfAbsent(fieldName, k -> new ArrayList<>()).add(errorMessage);
-        });
-
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.badRequest().body(apiError);
+        return handleException(request, ex, HttpStatus.BAD_REQUEST, errors);
     }
 
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<ApiError> handleBindException(BindException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
+    public ResponseEntity<ApiError> handleBindException(HttpServletRequest request, BindException ex) {
+        Map<String, List<String>> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.computeIfAbsent(error.getField(), k -> new ArrayList<>()).add(error.getDefaultMessage()));
 
-        ex.getFieldErrors().forEach(fieldError -> {
-            String fieldName = fieldError.getField();
-            String errorMessage = "Invalid value for field '" + fieldName + "': " + fieldError.getRejectedValue();
-            errorsMap.computeIfAbsent(fieldName, k -> new ArrayList<>()).add(errorMessage);
-        });
-
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.badRequest().body(apiError);
+        return handleException(request, ex, HttpStatus.BAD_REQUEST, errors);
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ApiError> handleDataAccessException(DataAccessException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("database_error", Collections.singletonList("A database error occurred: " + ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+    public ResponseEntity<ApiError> handleDataAccessException(HttpServletRequest request, DataAccessException ex) {
+        return handleException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Öğrenci bulunamadığında fırlatılan istisna
     @ExceptionHandler(StudentNotFoundException.class)
-    public ResponseEntity<ApiError> handleStudentNotFoundException(StudentNotFoundException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList(ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    public ResponseEntity<ApiError> handleStudentNotFoundException(HttpServletRequest request, StudentNotFoundException ex) {
+        return handleException(request, ex, HttpStatus.NOT_FOUND);
     }
 
-    // Departman bulunamadığında fırlatılan istisna
     @ExceptionHandler(DepartmentNotFoundException.class)
-    public ResponseEntity<ApiError> handleDepartmentNotFoundException(DepartmentNotFoundException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList(ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    public ResponseEntity<ApiError> handleDepartmentNotFoundException(HttpServletRequest request, DepartmentNotFoundException ex) {
+        return handleException(request, ex, HttpStatus.NOT_FOUND);
     }
 
-    // MissingPathVariableException için handler
-    @ExceptionHandler(MissingPathVariableException.class)
-    public ResponseEntity<ApiError> handleMissingPathVariableException(MissingPathVariableException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList("Path variable is missing: " + ex.getVariableName()));
-
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.badRequest().body(apiError);
-    }
-
-    // MethodArgumentTypeMismatchException için handler
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList("Invalid type for path variable: " + ex.getName()));
-
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.badRequest().body(apiError);
-    }
-
-
-    // Öğrenci yokken fırlatılan istisna
     @ExceptionHandler(NoStudentsFoundException.class)
-    public ResponseEntity<ApiError> handleNoStudentsFoundException(NoStudentsFoundException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList(ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    public ResponseEntity<ApiError> handleNoStudentsFoundException(HttpServletRequest request, NoStudentsFoundException ex) {
+        return handleException(request, ex, HttpStatus.NOT_FOUND);
     }
 
-    // Var olan bir öğrenci kaydı eklenmeye çalışıldığında fırlatılan istisna
     @ExceptionHandler(EntityAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleEntityAlreadyExistsException(EntityAlreadyExistsException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList(ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    public ResponseEntity<ApiError> handleEntityAlreadyExistsException(HttpServletRequest request, EntityAlreadyExistsException ex) {
+        return handleException(request, ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ApiError> handleCourseNotFoundException(CourseNotFoundException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList(ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    public ResponseEntity<ApiError> handleCourseNotFoundException(HttpServletRequest request, CourseNotFoundException ex) {
+        return handleException(request, ex, HttpStatus.NOT_FOUND);
     }
 
-    // NoCourseFoundException için handler
     @ExceptionHandler(NoCourseFoundException.class)
-    public ResponseEntity<ApiError> handleNoCourseFoundException(NoCourseFoundException ex) {
-        Map<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("error", Collections.singletonList(ex.getMessage()));
-        ApiError apiError = createApiError(errorsMap);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    public ResponseEntity<ApiError> handleNoCourseFoundException(HttpServletRequest request, NoCourseFoundException ex) {
+        return handleException(request, ex, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<ApiError> handleMissingPathVariableException(HttpServletRequest request, MissingPathVariableException ex) {
+        return handleException(request, ex, HttpStatus.BAD_REQUEST);
+    }
 
-    // ApiError oluşturma metodu
-    private ApiError createApiError(Map<String, List<String>> errors) {
-        ApiError apiError = new ApiError();
-        apiError.setId(UUID.randomUUID().toString());
-        apiError.setErrorTime(new Date());
-        apiError.setErrors(errors);
-        return apiError;
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(HttpServletRequest request, MethodArgumentTypeMismatchException ex) {
+        Map<String, List<String>> errors = new HashMap<>();
+        errors.put(ex.getName(), Collections.singletonList("Beklenen tip: " + ex.getRequiredType()));
+
+        return handleException(request, ex, HttpStatus.BAD_REQUEST, errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleGenericException(HttpServletRequest request, Exception ex) {
+        return handleException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ResponseEntity<ApiError> handleException(HttpServletRequest request, Exception ex, HttpStatus status) {
+        return handleException(request, ex, status, Collections.singletonMap("error", Collections.singletonList(ex.getMessage())));
+    }
+
+    private ResponseEntity<ApiError> handleException(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, List<String>> errors) {
+        String requestId = UUID.randomUUID().toString();
+        ApiError apiError = new ApiError(requestId, new Date(), errors);
+
+        loggingHelper.logError(requestId, ex.getMessage(), ex);
+
+        return ResponseEntity.status(status).body(apiError);
     }
 }

@@ -1,13 +1,14 @@
 package com.saracoglu.student.system.filter;
 
 public class IPRequestData {
-    private long lastRequestTime; // Son istek zamanı
-    private long requestCount;    // İstek sayısı
+    private long lastRequestTime;
+    private long requestCount;
 
     public IPRequestData(long lastRequestTime, long requestCount) {
         this.lastRequestTime = lastRequestTime;
         this.requestCount = requestCount;
     }
+
     public long getLastRequestTime() {
         return lastRequestTime;
     }

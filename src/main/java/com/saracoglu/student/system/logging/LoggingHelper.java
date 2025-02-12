@@ -5,20 +5,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import java.util.Enumeration;
+import java.util.UUID;
 
 @Component
 public class LoggingHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingHelper.class);
 
-    public void logRequest(HttpServletRequest request) {
+    public String logRequest(HttpServletRequest request) {
+        String requestId = UUID.randomUUID().toString();
         StringBuilder requestLog = new StringBuilder();
-        requestLog.append("Gelen İstek: ")
-                .append(request.getMethod())
-                .append(" ")
-                .append(request.getRequestURI())
+
+        requestLog.append("[REQUEST] ID: ").append(requestId)
+                .append(" - ").append(request.getMethod())
+                .append(" ").append(request.getRequestURI())
                 .append("\nHeaders: ");
 
         Enumeration<String> headerNames = request.getHeaderNames();
@@ -28,12 +29,14 @@ public class LoggingHelper {
         }
 
         logger.info(requestLog.toString());
-    }
-    public void logResponse(HttpServletResponse response) {
-        logger.info("Yanıt Durumu: " + response.getStatus());
+        return requestId;
     }
 
-    public void logError(String message, Throwable throwable) {
-        logger.error("Hata: " + message, throwable);
+    public void logResponse(String requestId, HttpServletResponse response) {
+        logger.info("[RESPONSE] ID: {} - Status: {}", requestId, response.getStatus());
+    }
+
+    public void logError(String requestId, String message, Throwable throwable) {
+        logger.error("[ERROR] ID: {} - Hata: {}", requestId, message, throwable);
     }
 }

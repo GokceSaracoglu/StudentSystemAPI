@@ -1,41 +1,41 @@
 package com.saracoglu.student.system.filter;
 
 import com.saracoglu.student.system.logging.LoggingHelper;
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
 @Component
 public class LoggingFilter implements Filter {
 
-    @Autowired
-    private LoggingHelper loggingHelper;  // LoggingHelper sınıfı inject ediliyor
+    private final LoggingHelper loggingHelper;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("LoggingFilter initialized");
+    public LoggingFilter(LoggingHelper loggingHelper) {
+        this.loggingHelper = loggingHelper;
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-
-        if (request instanceof HttpServletRequest) {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-            loggingHelper.logRequest(httpRequest);
-        }
-
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        chain.doFilter(request, response);
-        loggingHelper.logResponse(httpResponse);
-    }
 
-    @Override
-    public void destroy() {
-        System.out.println("LoggingFilter destroyed");
+        String requestId = loggingHelper.logRequest(httpRequest);
+        long startTime = System.currentTimeMillis();
+
+        try {
+            chain.doFilter(request, response);
+            long duration = System.currentTimeMillis() - startTime;
+            loggingHelper.logResponse(requestId, httpResponse);
+        } catch (Exception ex) {
+            long duration = System.currentTimeMillis() - startTime;
+            loggingHelper.logError(requestId, ex.getMessage(), ex);
+            throw ex;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.saracoglu.student.system.filter;
 
+import com.saracoglu.student.system.logging.LoggingHelper;
 import com.saracoglu.student.system.security.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -28,7 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	private UserDetailsService userDetailsService;
 
-	// Swagger yollarını tanımla
+	@Autowired
+	private LoggingHelper loggingHelper;
+
 	private static final String[] SWAGGER_PATHS = {
 			"/swagger-ui/**",
 			"/v3/api-docs/**",
@@ -39,40 +42,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
+		String requestId = loggingHelper.logRequest(request);
 		String requestURI = request.getRequestURI();
 
-		// Swagger yollarını atla
 		for (String swaggerPath : SWAGGER_PATHS) {
 			if (requestURI.startsWith(swaggerPath.replace("/**", ""))) {
 				filterChain.doFilter(request, response);
 				return;
 			}
 		}
-		// Authorization Header'ı logla
-		String header = request.getHeader("Authorization");
-		System.out.println("📌 Authorization Header: " + header);
 
-		String token = null;
-		String username = null;
+		String header = request.getHeader("Authorization");
 
 		if (header == null || !header.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		token = header.substring(7);
+		String token = header.substring(7);
 		try {
-			username = jwtService.getUsernameByToken(token);
+			String username = jwtService.getUsernameByToken(token);
 
 			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
 				if (userDetails != null && !jwtService.isTokenExpired(token)) {
 					String role = (String) jwtService.getClaimsByKey(token, "role");
-					System.out.println("📌 JWT İçinden Çıkan Rol: " + role);
 
 					if (role != null && !role.startsWith("ROLE_")) {
-						role = "ROLE_" + role; // Eğer ROLE_ prefix'i yoksa ekleyelim
+						role = "ROLE_" + role;
 					}
 
 					List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
@@ -85,10 +83,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				}
 			}
 		} catch (ExpiredJwtException e) {
-			System.out.println("Token süresi dolmuş : " + e.getMessage());
+			loggingHelper.logError(requestId, "JWT Token süresi dolmuş", e);
 		} catch (Exception e) {
-			System.out.println("Token doğrulama hatası : " + e.getMessage());
+			loggingHelper.logError(requestId, "JWT doğrulama hatası", e);
 		}
+
 		filterChain.doFilter(request, response);
+		loggingHelper.logResponse(requestId, response);
 	}
 }
